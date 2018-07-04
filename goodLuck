@@ -1,0 +1,168 @@
+#include "BST.h"
+#include <iostream>
+#include <windows.h>    // for timers on windows systems
+#include <random>       // for random number generator, do not seed for consistant results
+#include <string>		 // for things like "MD"
+
+using namespace std;
+
+int main()
+{
+	cout << "Testing Started:" << endl;
+	LARGE_INTEGER start, end; // requires windows.h for timers
+
+	BinarySearchTree<int> bst;
+	cout << "*******  Basic int function tests *******" << endl << endl;
+	cout << "4, 2, 3, 7, 10, 5, 12 inserted " << endl;
+	bst.insert(4);
+	bst.insert(2);
+	bst.insert(3);
+	bst.insert(7);
+	bst.insert(10);
+	bst.insert(5);
+	bst.insert(12);
+	std::cout << "min value: " << bst.min() << " == 2" << endl;
+	std::cout << "max value: " << bst.max() << " == 12" << endl;
+	cout << "depth of " << bst.maxDepth() << " == 3" <<  endl;
+	cout << "Does it contain 12? " << (bst.contains(12)? "yes":"no") << " == yes" << endl << endl;
+
+	bst.remove(12);
+	cout << "12 was removed, is it still in bst? " << (bst.contains(12)? "yes":"no") << " == no" << endl;
+
+	bst.remove(7);
+	cout << "7 was removed, is it still in bst? " << (bst.contains(7)? "yes":"no") << " == no" << endl;
+
+	bst.insert(3);
+	bst.remove(3);
+	cout << "another 3 inserted, then removed a 3, is 3 still in bst? " << (bst.contains(3)? "yes":"no")
+		 << " == yes" << endl << endl;
+
+	cout << "optional print of bst" << endl;
+	bst.print(std::cout); // optional print
+	cout << "cout via loop iterator to confirm:" << endl;
+	for(BinarySearchTree<int>::Iterator it = bst.begin(BinarySearchTree<int>::Traversal::PreOrder); it != bst.end(); it++){
+		cout << *it << " ";
+	}
+	cout << "\n\n\n\n";
+
+	bst.insert(1);
+	bst.insert(13);
+	bst.insert(11);
+	bst.insert(22);
+	bst.insert(0);
+	cout << "1 and 13 added, tree is now balanced"<< endl;
+
+	cout << "For loop iterator comparison tests no .end() required, using the same tree:" << endl;
+	bst.print(std::cout);
+	cout << "Iterator test (Preorder)" << endl;
+	BinarySearchTree<int>::Iterator iter = bst.begin(BinarySearchTree<int>::Traversal::PreOrder);
+	for(int i = 0; i < 12; i++) {
+		cout << *iter << " ";
+		iter++;
+	}
+	cout << "\n4 2 1 0 3 10 5 13 11 22 X X" << " = Ans, X X is result of *end() and *end()++" << endl << endl;
+
+	cout << "Iterator test (Inorder)" << endl;
+	BinarySearchTree<int>::Iterator iterIn = bst.begin(BinarySearchTree<int>::Traversal::InOrder);
+	for(int i = 0; i < 12; i++) {
+		cout << *iterIn << " ";
+		iterIn++;
+	}
+	cout << "\n0 1 2 3 4 5 10 11 13 22 X X" << " = Ans, X X is result of *end() and *end()++" << endl << endl;
+
+	cout << "Iterator test (Postorder)" << endl;
+	BinarySearchTree<int>::Iterator iterPost = bst.begin(BinarySearchTree<int>::Traversal::PostOrder);
+	for(int i = 0; i < 12; i++) {
+		cout << *iterPost << " ";
+		iterPost++;
+	}
+	cout << "\n0 1 3 2 5 11 22 13 10 4 X X" << " = Ans, X X is result of *end() and *end()++" << "\n\n\n\n";
+
+
+
+
+	int count = 0;
+	cout << "Large tree runtime tests:" << endl;
+	cout << "Inserting 50000 random ints int bst2(Pre)";
+	BinarySearchTree<int> bst2;
+
+	QueryPerformanceCounter(&start);
+	for(int i = 0; i < 50000; i++, count++){
+		bst2.insert(rand());
+	}
+	QueryPerformanceCounter(&end);
+	cout << "\nIt took: " << (end.QuadPart - start.QuadPart)/1000 << " mS and " << count << " iterations" << endl << endl;
+
+	cout <<"Iterating through bst2 (50000 ints preorder): ";
+	BinarySearchTree<int>::Iterator iter2pre = bst2.begin(BinarySearchTree<int>::Traversal::PreOrder);
+	count = 0;
+	QueryPerformanceCounter(&start);
+	for(BinarySearchTree<int>::Iterator i = iter2pre; i != bst2.end(); i++, count++){
+		//	cout << *i << " " ;
+	}
+	QueryPerformanceCounter(&end);
+	cout << "\nIt took: " << (end.QuadPart - start.QuadPart)/1000 << " mS and " << count << " iterations" << endl << endl;
+	cout <<"Iterating through bst2 (50000 ints Inorder): ";
+	BinarySearchTree<int>::Iterator iter2 = bst2.begin(BinarySearchTree<int>::Traversal::InOrder);
+	count = 0;
+	QueryPerformanceCounter(&start);
+	for(BinarySearchTree<int>::Iterator i = iter2; i != bst2.end(); i++, count++){
+		//	cout << *i << " " ;
+	}
+	QueryPerformanceCounter(&end);
+	cout << "\nIt took: " << (end.QuadPart - start.QuadPart)/1000 << " mS and " << count << " iterations"  << endl << endl;
+	cout <<"Iterating through bst2 (50000 ints PostOrder): ";
+	BinarySearchTree<int>::Iterator iter2post = bst2.begin(BinarySearchTree<int>::Traversal::InOrder);
+	count = 0;
+	QueryPerformanceCounter(&start);
+	for(BinarySearchTree<int>::Iterator i = iter2post; i != bst2.end(); i++, count++){
+		//	cout << *i << " " ;
+	}
+	QueryPerformanceCounter(&end);
+	cout << "\nIt took: " << (end.QuadPart - start.QuadPart)/1000 << " mS and " << count << " iterations" << "\n\n\n\n";
+
+	// doubles
+	BinarySearchTree<double> bst3;
+
+	QueryPerformanceCounter(&start);
+	for(int i = 0; i < 50000; i++){
+		bst3.insert(rand() * 1.0);
+	}
+	QueryPerformanceCounter(&end);
+	cout << "Adding 50000 doubles in bst3 took: " << (end.QuadPart - start.QuadPart)/1000 << " mS\n";
+
+	cout <<"Iterating through bst3(50000 doubles via Preorder):";
+	BinarySearchTree<double>::Iterator iter3 = bst3.begin(BinarySearchTree<double>::Traversal::PreOrder);
+	count = 0;
+	QueryPerformanceCounter(&start);
+	for(BinarySearchTree<double>::Iterator i = iter3; i != bst3.end(); i++, count++){
+		//	cout << *i << " " ;
+	}
+	QueryPerformanceCounter(&end);
+	cout << "\nIt took: " << (end.QuadPart - start.QuadPart)/1000 << " mS and " << count << " iterations" << endl << endl;
+
+	// strings
+	BinarySearchTree<string> bst4;
+	QueryPerformanceCounter(&start);
+	for(int i = 0; i < 50000; i++){
+		bst4.insert(to_string(rand()));
+	}
+	QueryPerformanceCounter(&end);
+	cout << "Adding 50000 strings in bst4 took: " << (end.QuadPart - start.QuadPart)/1000 << " mS\n";
+
+	cout <<"Iterating through bst4 (50000 strings via Preorder):";
+	BinarySearchTree<string>::Iterator iter4 = bst4.begin(BinarySearchTree<string>::Traversal::PreOrder);
+	count = 0;
+	QueryPerformanceCounter(&start);
+	for(BinarySearchTree<string>::Iterator i = iter4; i != bst4.end(); i++, count++){
+		//	cout << *i << " " ;
+	}
+	QueryPerformanceCounter(&end);
+	cout << "\nIt took:  " << (end.QuadPart - start.QuadPart)/1000 << " mS and " << count << " iterations" << "\n\n\n\n";
+
+
+
+	// complete
+	cout << "BST testing complete" << endl;
+	return 0;
+}
